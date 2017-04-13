@@ -4,10 +4,9 @@ package com.silk.controller;
 import javax.annotation.Resource;
 
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -17,7 +16,8 @@ import com.silk.msg.CommonResponse;
 import com.silk.msg.UserReq;
 
 
-@RestController("/user")
+@RestController()
+@RequestMapping(value="/user")
 public class LoginController
 {
     @Resource
@@ -27,7 +27,7 @@ public class LoginController
      * 
      * @param phone
      * @return */
-    @GetMapping
+    @RequestMapping(method=RequestMethod.GET)
     public CommonResponse getLoginCode(@RequestParam(value = "phone") String phone)
     {
         System.out.println(phone);
@@ -48,12 +48,16 @@ public class LoginController
      * 
      * @param user
      * @return */
-    @PostMapping
+    @RequestMapping(method=RequestMethod.POST)
     public CommonResponse login(@RequestBody UserReq user)
     {
         System.out.println(user);
         // TODO
         User u = userDao.findOne(Long.parseLong(user.getPhone()));
+        if(u == null)
+        {
+        	return CommonResponse.genFail("用户没有录入系统");
+        }
         if (u.getCode() == user.getCode() && System.currentTimeMillis() - u.getLastModifyTimestamp() <= 60000)
         {
             if(StringUtils.isEmpty(u.getName()))
@@ -65,7 +69,7 @@ public class LoginController
         return CommonResponse.genFail(null);
     }
     
-    @PutMapping
+    @RequestMapping(method=RequestMethod.PUT)
     public CommonResponse additional(@RequestBody UserReq user)
     {
         User u = userDao.findOne(Long.parseLong(user.getPhone()));
